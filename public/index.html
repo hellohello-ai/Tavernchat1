@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tavernchat - Cozy Medieval Tavern</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Quicksand:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="ambient-layer" aria-hidden="true">
+      <div class="fireplace">
+        <div class="fireplace__glow"></div>
+        <div class="fireplace__flame fireplace__flame--one"></div>
+        <div class="fireplace__flame fireplace__flame--two"></div>
+        <div class="fireplace__flame fireplace__flame--three"></div>
+        <div class="fireplace__log"></div>
+        <div class="fireplace__log fireplace__log--two"></div>
+      </div>
+      <div class="floating-shapes">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="bubble-field">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="page">
+      <header class="hero">
+        <div class="hero__content">
+          <p class="eyebrow">Welcome to the Ember & Oak</p>
+          <h1>Find your tavern tale.</h1>
+          <p class="hero__subtitle">
+            A cozy medieval chat hall where travelers meet 120 charming characters,
+            swap stories, and glow under candlelight themes.
+          </p>
+          <div class="hero__actions">
+            <button class="primary" id="start-journey">Start a Story</button>
+            <button class="ghost" id="toggle-ambience">Toggle Ambience</button>
+            <button class="ghost" id="open-ai-guide">AI Guide</button>
+          </div>
+          <div class="hero__notes" id="ai-note">
+            Connect your OpenAI key to enable AI-powered conversations.
+          </div>
+        </div>
+        <div class="hero__glow"></div>
+      </header>
+
+      <section class="stats" aria-label="Tavern stats">
+        <div class="stat-card">
+          <p>Characters</p>
+          <strong id="stat-characters">120</strong>
+        </div>
+        <div class="stat-card">
+          <p>Favorites</p>
+          <strong id="stat-favorites">0</strong>
+        </div>
+        <div class="stat-card">
+          <p>Conversations</p>
+          <strong id="stat-conversations">0</strong>
+        </div>
+        <div class="stat-card">
+          <p>Active Mood</p>
+          <strong id="stat-mood">Cozy</strong>
+        </div>
+      </section>
+
+      <section class="ad-row" aria-label="Sponsor placements">
+        <div class="ad-slot" data-slot="hero-banner">
+          <p>Ad Placement: Hero Banner</p>
+        </div>
+        <div class="ad-slot" data-slot="hero-sponsor">
+          <p>Ad Placement: Sponsor Spotlight</p>
+        </div>
+      </section>
+
+      <main class="layout">
+        <section class="panel" aria-labelledby="themes-title">
+          <div class="panel__header">
+            <h2 id="themes-title">Choose a Tavern Theme</h2>
+            <p>Swap the ambiance with a single click.</p>
+          </div>
+          <div class="theme-grid" id="theme-grid"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="sparks-title">
+          <div class="panel__header">
+            <h2 id="sparks-title">Story Sparks</h2>
+            <p>Instant prompts to ignite your conversation.</p>
+          </div>
+          <div class="sparks" id="sparks"></div>
+        </section>
+
+        <section class="panel profile" aria-labelledby="profile-title">
+          <div class="panel__header">
+            <h2 id="profile-title">Your Traveler Profile</h2>
+            <p>Sign in locally to save chats, favorites, and themes.</p>
+          </div>
+          <div class="profile__grid">
+            <div class="profile__form">
+              <label>
+                Display name
+                <input type="text" id="profile-name" placeholder="e.g. Elara" />
+              </label>
+              <label>
+                Contact email
+                <input
+                  type="email"
+                  id="profile-email"
+                  placeholder="you@example.com"
+                />
+              </label>
+              <button class="primary" id="profile-save">Save Profile</button>
+            </div>
+            <div class="profile__card" id="profile-card">
+              <h3>Adventurer</h3>
+              <p>Sign in to unlock persistent conversations.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="characters-title">
+          <div class="panel__header">
+            <div>
+              <h2 id="characters-title">Meet the Regulars</h2>
+              <p>Browse 120 handcrafted personalities and select a companion.</p>
+            </div>
+            <div class="search">
+              <input
+                type="text"
+                id="character-search"
+                placeholder="Search by name, role, or vibe"
+                aria-label="Search characters"
+              />
+            </div>
+          </div>
+          <div class="filters" id="role-filters" aria-label="Role filters"></div>
+          <div class="character-grid" id="character-grid"></div>
+        </section>
+
+        <section class="panel favorites" aria-labelledby="favorites-title">
+          <div class="panel__header">
+            <h2 id="favorites-title">Favorite Companions</h2>
+            <p>Pin your most-loved tavern friends.</p>
+          </div>
+          <div class="favorites__list" id="favorites"></div>
+        </section>
+
+        <section class="panel chat" aria-labelledby="chat-title">
+          <div class="panel__header">
+            <div>
+              <h2 id="chat-title">Hearthside Chat</h2>
+              <p id="chat-subtitle">Select a character to begin.</p>
+            </div>
+            <div class="chip" id="selected-character">No character chosen</div>
+          </div>
+          <div class="chat__controls">
+            <label class="chip" for="mood-select">Mood</label>
+            <select id="mood-select" aria-label="Choose chat mood">
+              <option value="cozy">Cozy</option>
+              <option value="dreamy">Dreamy</option>
+              <option value="heroic">Heroic</option>
+              <option value="playful">Playful</option>
+            </select>
+            <button class="ghost" id="save-chat">Save Chat</button>
+          </div>
+          <div class="chat__messages" id="chat-messages"></div>
+          <div class="quick-prompts" id="quick-prompts"></div>
+          <form class="chat__input" id="chat-form">
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Share your story..."
+              aria-label="Chat message"
+              autocomplete="off"
+              required
+            />
+            <button type="submit" class="primary">Send</button>
+          </form>
+        </section>
+
+        <section class="panel history" aria-labelledby="history-title">
+          <div class="panel__header">
+            <h2 id="history-title">Chat History</h2>
+            <p>Continue past conversations by character.</p>
+          </div>
+          <div class="history__list" id="history-list"></div>
+        </section>
+
+        <section class="panel spotlight" aria-labelledby="spotlight-title">
+          <div class="panel__header">
+            <h2 id="spotlight-title">Tonight's Spotlight</h2>
+            <p>A featured storyteller in the tavern glow.</p>
+          </div>
+          <div class="spotlight__card" id="spotlight"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="quests-title">
+          <div class="panel__header">
+            <h2 id="quests-title">Tavern Board</h2>
+            <p>Daily quests and cozy curiosities.</p>
+          </div>
+          <div class="quests" id="quests"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="ambience-title">
+          <div class="panel__header">
+            <h2 id="ambience-title">Ambience Switch</h2>
+            <p>Layer the tavern with atmospheric sounds and vibes.</p>
+          </div>
+          <div class="ambience" id="ambience"></div>
+        </section>
+
+        <section class="panel ad-panel" aria-labelledby="ads-title">
+          <div class="panel__header">
+            <h2 id="ads-title">Sponsor Gallery</h2>
+            <p>Flexible ad slots for partners and patrons.</p>
+          </div>
+          <div class="ad-grid">
+            <div class="ad-slot" data-slot="sidebar-1">Ad Placement: Side Panel 1</div>
+            <div class="ad-slot" data-slot="sidebar-2">Ad Placement: Side Panel 2</div>
+            <div class="ad-slot" data-slot="footer-banner">Ad Placement: Footer Banner</div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>Crafted for cozy nights, luminous stories, and a little bit of wonder.</p>
+        <div class="build-tag" id="build-tag">Ember Build</div>
+      </footer>
+    </div>
+
+    <dialog class="ai-guide" id="ai-guide">
+      <div class="ai-guide__content">
+        <h3>Enable AI Tavern Chat</h3>
+        <p>
+          To power conversations with GPT‑4o mini, set an environment variable named
+          <strong>OPENAI_API_KEY</strong> before starting the server.
+        </p>
+        <p class="tag">Example: OPENAI_API_KEY=your_key_here node server.js</p>
+        <button class="primary" id="close-ai-guide">Got it</button>
+      </div>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
