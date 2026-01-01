@@ -11,22 +11,6 @@
     />
   </head>
   <body>
-    <div class="ambient-layer" aria-hidden="true">
-      <div class="fireplace">
-        <div class="fireplace__glow"></div>
-        <div class="fireplace__flame fireplace__flame--one"></div>
-        <div class="fireplace__flame fireplace__flame--two"></div>
-        <div class="fireplace__flame fireplace__flame--three"></div>
-        <div class="fireplace__log"></div>
-        <div class="fireplace__log fireplace__log--two"></div>
-      </div>
-      <div class="floating-shapes">
-        <span></span><span></span><span></span><span></span><span></span>
-      </div>
-      <div class="bubble-field">
-        <span></span><span></span><span></span><span></span><span></span><span></span>
-      </div>
-    </div>
     <div class="page">
       <header class="hero">
         <div class="hero__content">
@@ -47,25 +31,6 @@
         </div>
         <div class="hero__glow"></div>
       </header>
-
-      <section class="stats" aria-label="Tavern stats">
-        <div class="stat-card">
-          <p>Characters</p>
-          <strong id="stat-characters">120</strong>
-        </div>
-        <div class="stat-card">
-          <p>Favorites</p>
-          <strong id="stat-favorites">0</strong>
-        </div>
-        <div class="stat-card">
-          <p>Conversations</p>
-          <strong id="stat-conversations">0</strong>
-        </div>
-        <div class="stat-card">
-          <p>Active Mood</p>
-          <strong id="stat-mood">Cozy</strong>
-        </div>
-      </section>
 
       <section class="ad-row" aria-label="Sponsor placements">
         <div class="ad-slot" data-slot="hero-banner">
@@ -93,34 +58,6 @@
           <div class="sparks" id="sparks"></div>
         </section>
 
-        <section class="panel profile" aria-labelledby="profile-title">
-          <div class="panel__header">
-            <h2 id="profile-title">Your Traveler Profile</h2>
-            <p>Sign in locally to save chats, favorites, and themes.</p>
-          </div>
-          <div class="profile__grid">
-            <div class="profile__form">
-              <label>
-                Display name
-                <input type="text" id="profile-name" placeholder="e.g. Elara" />
-              </label>
-              <label>
-                Contact email
-                <input
-                  type="email"
-                  id="profile-email"
-                  placeholder="you@example.com"
-                />
-              </label>
-              <button class="primary" id="profile-save">Save Profile</button>
-            </div>
-            <div class="profile__card" id="profile-card">
-              <h3>Adventurer</h3>
-              <p>Sign in to unlock persistent conversations.</p>
-            </div>
-          </div>
-        </section>
-
         <section class="panel" aria-labelledby="characters-title">
           <div class="panel__header">
             <div>
@@ -136,7 +73,6 @@
               />
             </div>
           </div>
-          <div class="filters" id="role-filters" aria-label="Role filters"></div>
           <div class="character-grid" id="character-grid"></div>
         </section>
 
@@ -179,14 +115,6 @@
             />
             <button type="submit" class="primary">Send</button>
           </form>
-        </section>
-
-        <section class="panel history" aria-labelledby="history-title">
-          <div class="panel__header">
-            <h2 id="history-title">Chat History</h2>
-            <p>Continue past conversations by character.</p>
-          </div>
-          <div class="history__list" id="history-list"></div>
         </section>
 
         <section class="panel spotlight" aria-labelledby="spotlight-title">
@@ -242,7 +170,6 @@
         <button class="primary" id="close-ai-guide">Got it</button>
       </div>
     </dialog>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="app.js"></script>
   </body>
