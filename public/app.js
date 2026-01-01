@@ -19,25 +19,11 @@ const saveChat = document.getElementById("save-chat");
 const aiGuide = document.getElementById("ai-guide");
 const openAiGuide = document.getElementById("open-ai-guide");
 const closeAiGuide = document.getElementById("close-ai-guide");
-const profileName = document.getElementById("profile-name");
-const profileEmail = document.getElementById("profile-email");
-const profileSave = document.getElementById("profile-save");
-const profileCard = document.getElementById("profile-card");
-const historyList = document.getElementById("history-list");
-const roleFilters = document.getElementById("role-filters");
-const toast = document.getElementById("toast");
-const statCharacters = document.getElementById("stat-characters");
-const statFavorites = document.getElementById("stat-favorites");
-const statConversations = document.getElementById("stat-conversations");
-const statMood = document.getElementById("stat-mood");
-const buildTag = document.getElementById("build-tag");
 
 let allCharacters = [];
 let activeCharacter = null;
 let ambienceOn = false;
 let favoriteIds = new Set();
-let currentProfile = null;
-let activeRoleFilter = "All";
 
 const quickPromptOptions = [
   "Tell me a cozy tavern secret.",
@@ -47,196 +33,6 @@ const quickPromptOptions = [
   "Who should I meet next?"
 ];
 
-const themeFallbacks = [
-  {
-    id: "candlelight",
-    name: "Candlelight Ember",
-    palette: {
-      background: "#1a120b",
-      surface: "#2c1d12",
-      accent: "#f2b45b",
-      text: "#f6e6c9",
-      glow: "#ffcf7a"
-    }
-  },
-  {
-    id: "moonlit",
-    name: "Moonlit Hearth",
-    palette: {
-      background: "#0f172a",
-      surface: "#1f2937",
-      accent: "#93c5fd",
-      text: "#e0f2fe",
-      glow: "#a5b4fc"
-    }
-  }
-];
-
-const questFallbacks = [
-  {
-    title: "Lanterns of the Old Road",
-    detail: "Deliver three lanterns to the northern watchpost.",
-    reward: "Warm cloak patch"
-  },
-  {
-    title: "Song for the Hearth",
-    detail: "Help the bard find a lost verse in the library.",
-    reward: "Golden lute pin"
-  }
-];
-
-const ambienceFallbacks = [
-  { id: "hearth", name: "Hearthfire Crackle", mood: "Cozy" },
-  { id: "rain", name: "Rain on the Shingles", mood: "Dreamy" },
-  { id: "lute", name: "Lute in the Corner", mood: "Festive" }
-];
-
-const characterSeeds = {
-  names: [
-    "Alaric",
-    "Brynna",
-    "Cedric",
-    "Darya",
-    "Elowen",
-    "Faelan",
-    "Garrick",
-    "Helena",
-    "Isolde",
-    "Joric",
-    "Kael",
-    "Liora",
-    "Marek",
-    "Nysa",
-    "Orin",
-    "Petra",
-    "Quill",
-    "Rowan",
-    "Sable",
-    "Thorne",
-    "Ulric",
-    "Vesper",
-    "Wren",
-    "Ysra",
-    "Zorin"
-  ],
-  roles: [
-    "Bard",
-    "Tavern Keeper",
-    "Ranger",
-    "Mage",
-    "Herbalist",
-    "Blacksmith",
-    "Cartographer",
-    "Seer",
-    "Scribe",
-    "Knight",
-    "Explorer",
-    "Chef",
-    "Inn Steward",
-    "Alchemist",
-    "Story Weaver"
-  ],
-  personalities: [
-    "warm and curious",
-    "mischievous and witty",
-    "soft-spoken and thoughtful",
-    "bold and adventurous",
-    "gentle and poetic",
-    "spirited and daring",
-    "wise and patient",
-    "playful and charming",
-    "mysterious and calm",
-    "earnest and loyal"
-  ]
-};
-
-const loreSnippets = [
-  "keeps a map of forgotten taverns",
-  "collects songs about moonlit roads",
-  "brews an herb tea that restores courage",
-  "tracks legends about the Ember King",
-  "offers blessings before dangerous journeys",
-  "knows every secret passage in the city",
-  "travels with a lantern that never cools",
-  "writes letters to the stars",
-  "keeps a charm for safe harbor",
-  "can read fortunes in candle smoke"
-];
-
-const generateCharacters = () => {
-  const characters = [];
-  let id = 1;
-  for (let i = 0; i < 120; i += 1) {
-    const name = characterSeeds.names[i % characterSeeds.names.length];
-    const role = characterSeeds.roles[i % characterSeeds.roles.length];
-    const personality =
-      characterSeeds.personalities[i % characterSeeds.personalities.length];
-    const lore = loreSnippets[i % loreSnippets.length];
-    characters.push({
-      id: id.toString(),
-      name: `${name} ${role.split(" ")[0]}son`,
-      role,
-      personality,
-      lore,
-      tagline: `${role} who is ${personality}.`,
-      portrait: `/portraits/${(i % 12) + 1}.svg`,
-      availability: i % 3 === 0 ? "At the hearth" : "By the window",
-      vibe: i % 2 === 0 ? "Cozy" : "Adventurous",
-      specialty: i % 2 === 0 ? "Comfort tales" : "Bold quests"
-    });
-    id += 1;
-  }
-  return characters;
-};
-
-const fallbackReply = (character) => {
-  const responsePhrases = [
-    "The fire crackles as I answer.",
-    "A soft lute melody drifts through the room.",
-    "I lean closer, keeping my voice warm.",
-    "The tavern hums while I gather my thoughts.",
-    "Candlelight flickers over my words."
-  ];
-  const roleReplies = {
-    Bard: [
-      "Would you like a tale of moonlit heroes?",
-      "I can spin a song for any brave soul.",
-      "The tavern holds more stories than ale."
-    ],
-    Mage: [
-      "Mystic runes glow warmly tonight.",
-      "A spell of comfort can be just as powerful.",
-      "Shall we ponder the stars together?"
-    ],
-    "Tavern Keeper": [
-      "Settle in, the hearth is yours.",
-      "A fresh bowl of stew does wonders.",
-      "We keep the night safe and steady here."
-    ],
-    Ranger: [
-      "The woods whisper gentle secrets.",
-      "I can guide you along the quieter paths.",
-      "Even the wilds appreciate a warm hearth."
-    ]
-  };
-  const roleOptions = roleReplies[character.role] || [
-    "The hearth welcomes all travelers.",
-    "Tell me more, and the night will listen.",
-    "Every journey begins with a shared story."
-  ];
-  return `${responsePhrases[Math.floor(Math.random() * responsePhrases.length)]} ${
-    roleOptions[Math.floor(Math.random() * roleOptions.length)]
-  }`;
-};
-
-const fetchWithTimeout = (url, options = {}, timeoutMs = 4000) =>
-  Promise.race([
-    fetch(url, options),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Request timeout")), timeoutMs)
-    )
-  ]);
-
 const setTheme = (palette) => {
   const root = document.documentElement;
   root.style.setProperty("--background", palette.background);
@@ -244,13 +40,6 @@ const setTheme = (palette) => {
   root.style.setProperty("--accent", palette.accent);
   root.style.setProperty("--text", palette.text);
   root.style.setProperty("--glow", palette.glow);
-};
-
-const showToast = (message) => {
-  if (!toast) return;
-  toast.textContent = message;
-  toast.classList.add("is-visible");
-  setTimeout(() => toast.classList.remove("is-visible"), 2400);
 };
 
 const persistTheme = (themeId) => {
@@ -287,10 +76,9 @@ const renderThemes = (themes) => {
 const renderCharacters = (characters) => {
   characterGrid.innerHTML = "";
   characters.forEach((character) => {
-    const card = document.createElement("div");
+    const card = document.createElement("button");
     card.className = "character-card";
-    card.setAttribute("role", "button");
-    card.tabIndex = 0;
+    card.type = "button";
     card.innerHTML = `
       <button class="favorite-toggle" aria-label="Toggle favorite">${
         favoriteIds.has(character.id) ? "★" : "☆"
@@ -302,8 +90,6 @@ const renderCharacters = (characters) => {
       <div class="tag">${character.availability}</div>
     `;
 
-    const handleSelect = () => selectCharacter(character);
-
     card.addEventListener("click", (event) => {
       if (event.target.classList.contains("favorite-toggle")) {
         event.stopPropagation();
@@ -311,35 +97,9 @@ const renderCharacters = (characters) => {
         renderCharacters(characters);
         return;
       }
-      handleSelect();
-    });
-    card.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        handleSelect();
-      }
+      selectCharacter(character);
     });
     characterGrid.appendChild(card);
-  });
-};
-
-const renderRoleFilters = () => {
-  if (!roleFilters) return;
-  const roles = Array.from(new Set(allCharacters.map((item) => item.role)));
-  roleFilters.innerHTML = "";
-  ["All", ...roles].forEach((role) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = role;
-    if (role === activeRoleFilter) {
-      button.classList.add("is-active");
-    }
-    button.addEventListener("click", () => {
-      activeRoleFilter = role;
-      handleSearch(searchInput.value);
-      renderRoleFilters();
-    });
-    roleFilters.appendChild(button);
   });
 };
 
@@ -419,59 +179,6 @@ const renderFavorites = () => {
   });
 };
 
-const renderHistory = () => {
-  if (!historyList) return;
-  historyList.innerHTML = "";
-  if (!currentProfile) {
-    historyList.innerHTML =
-      "<p class='muted'>Save a profile to unlock multi-session chat history.</p>";
-    return;
-  }
-
-  const historyKey = `tavern-history-${currentProfile.id}`;
-  const stored = JSON.parse(localStorage.getItem(historyKey) || "{}");
-  const entries = Object.entries(stored);
-
-  if (entries.length === 0) {
-    historyList.innerHTML =
-      "<p class='muted'>No conversations yet. Start chatting to build history.</p>";
-    return;
-  }
-
-  entries.forEach(([characterId, messages]) => {
-    const character = allCharacters.find((item) => item.id === characterId);
-    if (!character) return;
-    const lastMessage = messages[messages.length - 1];
-    const card = document.createElement("div");
-    card.className = "history__item";
-    card.innerHTML = `
-      <div>
-        <strong>${character.name}</strong>
-        <p>${lastMessage?.text || "Conversation saved."}</p>
-      </div>
-      <button class="ghost" type="button">Continue</button>
-    `;
-    card.querySelector("button").addEventListener("click", () => {
-      selectCharacter(character);
-      loadConversation(character.id);
-    });
-    historyList.appendChild(card);
-  });
-};
-
-const updateStats = () => {
-  if (!statCharacters || !statFavorites || !statConversations) return;
-  statCharacters.textContent = allCharacters.length.toString();
-  statFavorites.textContent = favoriteIds.size.toString();
-  if (!currentProfile) {
-    statConversations.textContent = "0";
-    return;
-  }
-  const historyKey = `tavern-history-${currentProfile.id}`;
-  const stored = JSON.parse(localStorage.getItem(historyKey) || "{}");
-  statConversations.textContent = Object.keys(stored).length.toString();
-};
-
 const renderSpotlight = () => {
   const character = allCharacters[Math.floor(Math.random() * allCharacters.length)];
   if (!character) return;
@@ -491,54 +198,22 @@ const renderSpotlight = () => {
 
 const selectCharacter = (character) => {
   activeCharacter = character;
-  if (!selectedCharacter || !chatSubtitle) return;
   selectedCharacter.textContent = `${character.name} • ${character.role}`;
   chatSubtitle.textContent = character.lore;
-  const hasHistory = loadConversation(character.id);
-  if (!hasHistory) {
-    addMessage(`You sit beside ${character.name}.`, "system");
-  }
+  addMessage(`You sit beside ${character.name}.`, "system");
 };
 
 const addMessage = (text, type = "character") => {
   const message = document.createElement("div");
   message.className = `message ${type === "user" ? "message--user" : ""}`;
   message.textContent = text;
-  if (!chatMessages) return;
   chatMessages.appendChild(message);
   chatMessages.scrollTop = chatMessages.scrollHeight;
-};
-
-const persistMessage = (message, author) => {
-  if (!currentProfile || !activeCharacter) return;
-  const historyKey = `tavern-history-${currentProfile.id}`;
-  const stored = JSON.parse(localStorage.getItem(historyKey) || "{}");
-  const conversation = stored[activeCharacter.id] || [];
-  conversation.push({ text: message, author, timestamp: Date.now() });
-  stored[activeCharacter.id] = conversation.slice(-50);
-  localStorage.setItem(historyKey, JSON.stringify(stored));
-  renderHistory();
-  updateStats();
-};
-
-const loadConversation = (characterId) => {
-  chatMessages.innerHTML = "";
-  if (!currentProfile) return false;
-  const historyKey = `tavern-history-${currentProfile.id}`;
-  const stored = JSON.parse(localStorage.getItem(historyKey) || "{}");
-  const conversation = stored[characterId] || [];
-  conversation.forEach((entry) => {
-    addMessage(entry.text, entry.author === "user" ? "user" : "character");
-  });
-  return conversation.length > 0;
 };
 
 const handleSearch = (value) => {
   const query = value.toLowerCase();
   const filtered = allCharacters.filter((character) => {
-    if (activeRoleFilter !== "All" && character.role !== activeRoleFilter) {
-      return false;
-    }
     return (
       character.name.toLowerCase().includes(query) ||
       character.role.toLowerCase().includes(query) ||
@@ -555,7 +230,6 @@ const sendMessage = async (message) => {
   }
 
   addMessage(message, "user");
-  persistMessage(message, "user");
   const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -565,22 +239,14 @@ const sendMessage = async (message) => {
       mood: moodSelect.value
     })
   });
-  if (!response.ok) {
-    const fallback = fallbackReply(activeCharacter);
-    addMessage(`${activeCharacter.name}: ${fallback}`);
-    persistMessage(`${activeCharacter.name}: ${fallback}`, "character");
-    return;
-  }
   const data = await response.json();
   addMessage(`${activeCharacter.name}: ${data.reply}`);
-  persistMessage(`${activeCharacter.name}: ${data.reply}`, "character");
 };
 
 const toggleAmbienceMode = () => {
   ambienceOn = !ambienceOn;
   document.body.classList.toggle("ambience--on", ambienceOn);
   toggleAmbience.textContent = ambienceOn ? "Ambience On" : "Toggle Ambience";
-  showToast(ambienceOn ? "Ambience engaged ✨" : "Ambience paused");
 };
 
 const toggleFavorite = (character) => {
@@ -591,7 +257,6 @@ const toggleFavorite = (character) => {
   }
   localStorage.setItem("tavern-favorites", JSON.stringify([...favoriteIds]));
   renderFavorites();
-  updateStats();
 };
 
 const loadFavorites = () => {
@@ -629,53 +294,19 @@ const restoreChatLog = () => {
   JSON.parse(stored).forEach((message) => addMessage(message, "system"));
 };
 
-const saveProfile = () => {
-  if (!profileName || !profileEmail || !profileCard) return;
-  const name = profileName.value.trim();
-  const email = profileEmail.value.trim();
-  if (!name || !email) {
-    addMessage("Add a name and email to save your profile.", "system");
-    return;
-  }
-  currentProfile = { id: email.toLowerCase(), name, email };
-  localStorage.setItem("tavern-profile", JSON.stringify(currentProfile));
-  profileCard.innerHTML = `
-    <h3>${name}</h3>
-    <p>${email}</p>
-    <p class="muted">Profile active. Your chats will be saved.</p>
-  `;
-  showToast("Profile saved. Welcome back!");
-  renderHistory();
-  updateStats();
-};
-
-const loadProfile = () => {
-  if (!profileName || !profileEmail || !profileCard) return;
-  const stored = localStorage.getItem("tavern-profile");
-  if (!stored) return;
-  currentProfile = JSON.parse(stored);
-  profileName.value = currentProfile.name;
-  profileEmail.value = currentProfile.email;
-  profileCard.innerHTML = `
-    <h3>${currentProfile.name}</h3>
-    <p>${currentProfile.email}</p>
-    <p class="muted">Profile active. Your chats will be saved.</p>
-  `;
-};
-
-startJourney?.addEventListener("click", () => {
-  document.getElementById("characters-title")?.scrollIntoView({
+startJourney.addEventListener("click", () => {
+  document.getElementById("characters-title").scrollIntoView({
     behavior: "smooth"
   });
 });
 
-toggleAmbience?.addEventListener("click", toggleAmbienceMode);
+toggleAmbience.addEventListener("click", toggleAmbienceMode);
 
-searchInput?.addEventListener("input", (event) => {
+searchInput.addEventListener("input", (event) => {
   handleSearch(event.target.value);
 });
 
-chatForm?.addEventListener("submit", (event) => {
+chatForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const message = chatInput.value.trim();
   if (!message) return;
@@ -683,71 +314,43 @@ chatForm?.addEventListener("submit", (event) => {
   sendMessage(message);
 });
 
-saveChat?.addEventListener("click", saveChatLog);
-profileSave?.addEventListener("click", saveProfile);
-moodSelect?.addEventListener("change", () => {
-  if (statMood) {
-    statMood.textContent = moodSelect.value;
-  }
-});
+saveChat.addEventListener("click", saveChatLog);
 
-openAiGuide?.addEventListener("click", () => aiGuide?.showModal());
-closeAiGuide?.addEventListener("click", () => aiGuide?.close());
+openAiGuide.addEventListener("click", () => aiGuide.showModal());
+closeAiGuide.addEventListener("click", () => aiGuide.close());
 
 const init = async () => {
-  if (!characterGrid || !chatForm || !chatMessages) {
-    return;
-  }
-  const responses = await Promise.allSettled([
-    fetchWithTimeout("/api/themes"),
-    fetchWithTimeout("/api/characters"),
-    fetchWithTimeout("/api/quests"),
-    fetchWithTimeout("/api/ambience"),
-    fetchWithTimeout("/api/story-sparks")
+  const [
+    themesResponse,
+    charactersResponse,
+    questsResponse,
+    ambienceResponse,
+    sparksResponse
+  ] = await Promise.all([
+    fetch("/api/themes"),
+    fetch("/api/characters"),
+    fetch("/api/quests"),
+    fetch("/api/ambience"),
+    fetch("/api/story-sparks")
   ]);
 
-  const [themesResponse, charactersResponse, questsResponse, ambienceResponse, sparksResponse] =
-    responses.map((result) => (result.status === "fulfilled" ? result.value : null));
+  const themes = await themesResponse.json();
+  allCharacters = await charactersResponse.json();
+  const questItems = await questsResponse.json();
+  const ambienceItems = await ambienceResponse.json();
+  const sparkItems = await sparksResponse.json();
 
-  const themes = themesResponse?.ok
-    ? await themesResponse.json()
-    : themeFallbacks;
-  allCharacters = charactersResponse?.ok
-    ? await charactersResponse.json()
-    : generateCharacters();
-  const questItems = questsResponse?.ok
-    ? await questsResponse.json()
-    : questFallbacks;
-  const ambienceItems = ambienceResponse?.ok
-    ? await ambienceResponse.json()
-    : { tracks: ambienceFallbacks };
-  const sparkItems = sparksResponse?.ok
-    ? await sparksResponse.json()
-    : quickPromptOptions;
-
-  if (themes.length) {
-    renderThemes(themes);
-    loadTheme(themes);
-  }
+  renderThemes(themes);
   renderCharacters(allCharacters);
-  renderRoleFilters();
   renderQuests(questItems);
   renderAmbience(ambienceItems.tracks);
   renderSparks(sparkItems);
   renderQuickPrompts();
+
+  loadTheme(themes);
   loadFavorites();
   renderFavorites();
   renderSpotlight();
-  loadProfile();
-  renderHistory();
-  updateStats();
-  if (statMood && moodSelect) {
-    statMood.textContent = moodSelect.value;
-  }
-  if (buildTag) {
-    const now = new Date();
-    buildTag.textContent = `Ember Build · ${now.toLocaleDateString()}`;
-  }
 
   addMessage("The tavern welcomes you. Choose a companion to begin.");
   restoreChatLog();
